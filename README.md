@@ -2,9 +2,9 @@
 
 **Wrapper classes for easy implementation of Tkinter menus.**
 
-This package was created to simplify the process of implementing menus in Tkinter windows. This was accomplished by defining functional "building block" classes which can be assembled together to create the user interface. Each of these classes provides the methods and properties needed to accomplish the assembly task. The design goal was to make this as easy and intuitive as possible.
+This package was created to simplify the process of implementing menus in Tkinter windows. This was accomplished by defining functional "building block" classes which can be assembled together to create the user interface. Each of these classes provides the methods and properties needed to accomplish the assembly task. The design goal was to make this process as easy and intuitive as possible.
 
-The following script demonstrates how this package can be used to construct a Tkinter window that displays a **File** drop-down menu in it's top menu bar. The **File** menu, in turn, has a **Quit** selection item that can close the window.
+As a quick example, the following script will construct a Tkinter window and display a top menu bar that contains a single menu entry labeled **File**. This entry is a drop-down menu, and it has a selection item labeled **Exit**. Clicking on this item will call the **on_exit( )** event handler, which closes the window and exits the program.
 
 ```
 from tkinter import Tk
@@ -12,21 +12,16 @@ from menus import MainMenu
 
 root = Tk()
 
-def on_quit():
+def on_exit():
     root.destroy()
 
 # Create and Populate the Top Menu Bar
 menu_bar = MainMenu(root)
 file_menu = menu_bar.add_menu('File')
-file_menu.add_item('Quit', on_quit)
+file_menu.add_item('Exit', on_exit)
 
 root.mainloop()
 ```
-
-The package author tried to adhere to these three guiding principles from [**The Zen of Python**](https://peps.python.org/pep-0020/)
-* Beautiful is better than ugly.
-* Simple is better than complex.
-* Readability counts.
 
 # Installation
 
@@ -48,66 +43,96 @@ This package provides the following class definitions **:**
 * **MenuButton -** A class used to represent a drop-down selection menu button.
 * **ContextMenu -** A class used to represent a pop-up context menu.
 
-```
-import tkinter as tk
-from menus import MainMenu
+The **MainMenu, Menu,** and **MenuItem** classes are the three "building blocks" used to construct the user interface for applications.
 
-root = tk.Tk()
-root.geometry('400x300')
-
-def on_exit():
-    """Handle the 'Exit' selection."""
-    root.destroy()
-
-# Create and Populate the Top Menu Bar
-menu_bar = MainMenu(root)
-file_menu = menu_bar.add_menu('File')
-file_menu.add_item('E&xit', on_exit).shortcut = 'q'
-
-root.mainloop()
-```
-
-```menu_bar = MainMenu(root)``` Creates the top menu bar for the window
-
-```file_menu = menu_bar.add_menu('File')``` Creates the **File** menu and adds it to the top menu bar
-
-<div class="page"/>
-
- An equivalent approach would be to explicitly create the **File** menu and add it to the top menu bar. Followed by creating the **Exit** selection item, assigning the **Ctrl+Q ( **<font size="2">**&#x2318;**</font> **Q )** shortcut, and finally adding it to the **File** menu.
-
- This sequence is shown in the following script **:**
+Consider the previous section's example script with the following changes **:**
+1) The import statement now includes the **Menu,** and the **MenuItem** classes.
+2) The **File** menu is first created and then added to the top menu bar.
+3) The **Exit** selection item is first created and then added to the **File** menu.
 
 ```
-import tkinter as tk
+from tkinter import Tk
 from menus import MainMenu, Menu, MenuItem
 
-root = tk.Tk()
-root.geometry('400x300')
+root = Tk()
 
 def on_exit():
-    """Handle the 'Exit' selection."""
     root.destroy()
 
 # Create and Populate the Top Menu Bar
 menu_bar = MainMenu(root)
 file_menu = Menu('File')
 menu_bar.add(file_menu)
-exit_item = MenuItem('E&xit', on_exit)
-exit_item.shortcut = 'q'
+exit_item = MenuItem('Exit', on_exit)
 file_menu.add(exit_item)
 
 root.mainloop()
 ```
 
+Both scripts are functionally equivalent, but the second version shows the individual classes being created and then assembled to construct the user interface. The reader can refer to [**The Zen of Python**](https://peps.python.org/pep-0020/) to decide if either one of these two scripts is the more Pythonic than the other.
 
-The macOS command character <font size="2">**&#x2318;**</font> **S** versus the Windows/Linux **Ctrl+S**.
+<div class="page"/>
+
+Referring back to the original example script, consider these two changes to the **Exit** selection item **:**
+1) The **Exit** selection item's label string has been changed to **'E&xit'**
+2) The **Exit** selection item's **shortcut** property has been assigned a key character value of **'w'**
 
 ```
-import tkinter as tk
-from menus import MainMenu, EntryType, ConfigInfo
+from tkinter import Tk
+from menus import MainMenu
 
-...
+root = Tk()
 
+def on_exit():
+    root.destroy()
+
+# Create and Populate the Top Menu Bar
+menu_bar = MainMenu(root)
+file_menu = menu_bar.add_menu('File')
+file_menu.add_item('E&xit', on_exit).shortcut = 'w'
+
+root.mainloop()
+```
+
+The Windows and Linux platforms support the **Alt+Key** technique for navigating the top menu bar and it's entries. The active key value for each entry appears as an underlined character in that entry's label. By default, the first character in the entry's label is the active key value. In this example, the top menu bar displays a **<u>F</u>ile** label. When the **&** symbol appears in the label string, the next character in the label will be designated as the active key value for that entry. The **&** symbol is not part of the displayed label. In this example, the **'E&xit'** string denotes that the **x** character is the active key value for this entry, and the label is displayed as **E<u>x</u>it** on the screen.
+
+The **shortcut** property allows a selection item to have a **Control+Key ( Command+key )** keyboard shortcut assigned to it. This is consistent with commonly used keyboard shortcuts such as the **Ctrl+C ( <font size="2">&#x2318;</font>C )** shortcut for a **Copy,** or the **Ctrl+V ( <font size="2">&#x2318;</font>V )** shortcut for a **Paste.** In this example, assigning the **'w'** character to the **shortcut** property creates a keyboard shortcut of **Ctrl+W ( <font size="2">&#x2318;</font>W )** for the **Exit** selection item. The shortcut's name is displayed next to the label on the screen. The **MenuItem** class also has a **set_custom_shortcut( )** method which can be used to assign other kinds of keyboard shortcuts, such as using a Function Key as a shortcut. The reader should refer to the Tkinter documentation for information on keyboard events.
+
+The reader may wonder why the **'q'** character wasn't chosen for the **Exit** shortcut. The **Ctrl+Q** shortcut is commonly used to exit a program, and it certainly can be used on either a Windows or a Linux platform. However, the **<font size="2">&#x2318;</font>Q** shortcut is reserved for the system-level **Quit** command on macOS platforms. For the **<font size="2">&#x2318;</font>Q** shortcut to actually call the **on_exit( )** event handler, the macOS user must override the system by adding the following statement **:**
+
+```
+root.createcommand('tk::mac::Quit', on_exit)
+```
+
+<div class="page"/>
+
+A menu entry can also display an icon image. Assuming there is an **image_folder** that contains an icon image file named **exit.png**, an icon image can be added to the **Exit** selection item by making the following changes to the previous example **:**
+1) Import the PhotoImage class from tkinter
+2) Create an **exit_icon** PhotoImage from the **image_folder/exit.png** image file
+3) Add the **exit_icon** PhotoImage to the **Exit** selection item's argument list
+
+```
+from tkinter import Tk, PhotoImage
+from menus import MainMenu
+
+root = Tk()
+
+def on_exit():
+    root.destroy()
+
+# Create and Populate the Top Menu Bar
+menu_bar = MainMenu(root)
+file_menu = menu_bar.add_menu('File')
+
+exit_icon = PhotoImage(file='image_folder/exit.png')
+file_menu.add_item('E&xit', on_exit, exit_icon).shortcut = 'w'
+
+root.mainloop()
+```
+
+An application's top menu bar typically contains several drop-down menu entries. In this next example, four entries **( File, Edit, View,** and **Help )** are added to the top menu bar. The **begin_update( )** method should be called prior to adding multiple entries to the **MainMenu** class. Calling this method causes all the additions to be placed into a queue, and it will prevent multiple screen updates from occurring during this process. When all the entries have been added, the **end_update( )** method is then called to process all the queued entries and to allow those entries to be displayed on the screen. Use of the **begin_update( ) ... end_update( )** pair is recommended on all platforms, and it is required on the macOS platform to ensure the correct behavior of the top menu bar.
+
+```
 # Create and Populate the Top Menu Bar
 menu_bar = MainMenu(root)
 menu_bar.begin_update()
@@ -117,45 +142,100 @@ view_menu = menu_bar.add_menu('View')
 help_menu = menu_bar.add_menu('Help')
 menu_bar.end_update()
 
-file_menu.begin_update()
-file_menu.add_item('Open', on_open).shortcut = 'o'
-file_menu.add_item('Save', on_save).shortcut = 's'
-file_menu.add_separator()
-file_menu.add_item('E&xit', on_exit).shortcut = 'q'
-file_menu.end_update()
+...
 ```
 
+<div class="page"/>
+
+Continuing this theme, a typical **File** drop-down menu will also have several selection items, such as **Open**, **Save**, and **Exit**. The **add_separator( )** method displays a horizontal line between the **Save** and **Exit** selection items. Once again, the **begin_update( ) ... end_update( )** pair should be used when adding multiple entries to an instance of the **Menu** class.
+
 ```
+def on_open():
+    print('File_Menu - Open')
+
+def on_save():
+    print('File_Menu - Save')
+
+open_icon = PhotoImage(file='image_folder/open.png')
+save_icon = PhotoImage(file='image_folder/save.png')
+exit_icon = PhotoImage(file='image_folder/exit.png')
+
+file_menu.begin_update()
+file_menu.add_item('Open', on_open, open_icon).shortcut = 'o'
+file_menu.add_item('Save', on_save, save_icon).shortcut = 's'
+file_menu.add_separator()
+file_menu.add_item('E&xit', on_exit, exit_icon).shortcut = 'w'
+file_menu.end_update()
+
+...
+```
+
+In this next code snippet, the **Edit** drop-down menu has the **Cut, Copy,** and **Paste** selection items. Here the **&** symbol appears in the **Cu&t** label string, and it is used to make that entry's active key value = **'t'**.
+
+```
+def on_cut():
+    print('Edit_Menu - Cut')
+
+def on_copy():
+    print('Edit_Menu - Copy')
+
+def on_paste():
+    print('Edit_Menu - Paste')
+
 edit_menu.begin_update()
 edit_menu.add_item('Cu&t', on_cut).shortcut = 'x'
 edit_menu.add_item('Copy', on_copy).shortcut = 'c'
 edit_menu.add_item('Paste', on_paste).shortcut = 'v'
-edit_menu.add_separator()
-
-find_menu = edit_menu.add_menu('Find')
-find_menu.add_item('Find', on_find).shortcut = 'f'
-find_menu.add_item('Replace', on_replace).shortcut = 'r'
-
 edit_menu.end_update()
+
+...
 ```
 
+<div class="page"/>
+
+The **View** drop-down menu has a **Zoom** menu entry, which in turn, has have three different zoom options. These three selection items are configured to behave like Tkinter Radiobutton widgets. First, the import statements from the previous example need to be updated to the following **:**
+
 ```
-zoom_value = tk.IntVar(value=1)
+from tkinter import Tk, PhotoImage, IntVar
+from menus import MainMenu, EntryType, ConfigInfo
+```
+
+Next, each selection item in the **Zoom** menu must be configured as a 'Radiobutton' entry. The **EntryType** and the **ConfigInfo** dataclasses are used to perform that task. The **EntryType** defines the behavior of the entry, and it can be one of three options **: STANDARD**( default )**, CHECKBUTTON,** or **RADIOBUTTON**. Just like Radiobuttons, the Tkinter **IntVar** class is used to provide communication between the entries, and each entry must have a unique id value. The **ConfigInfo** dataclass is used to provide the configuration information when creating each of the three selection items. In this next code section, the three different zoom options are created and added to the **Zoom** menu entry in the **View** drop-down menu **:**
+
+```
+...
+
+zoom_variable = IntVar(value=100)
 
 def on_zoom():
-    """Handle the 'Zoom' selections."""
-    print(f'*** View_Menu - Zoom {zoom_value.get()}00% was Selected ***')
+    print(f'View_Menu - Zoom {zoom_variable.get()}%')
 
-view_menu = menu_bar.add_menu('View')
-view_menu.begin_update()
-for i in (1, 2, 4):
-    label = f'Zoom &{i}00%'
-    info = ConfigInfo(EntryType.RADIOBUTTON, zoom_value, i)
-    view_menu.add_item(label, on_zoom, config=info)
-view_menu.end_update()
+zoom_menu = view_menu.add_menu('Zoom')
+zoom_menu.begin_update()
+for value in (100, 200, 400):
+    label = f'&{value}%'
+    config = ConfigInfo(EntryType.RADIOBUTTON, zoom_variable, value)
+    zoom_menu.add_item(label, on_zoom, config=config)
+zoom_menu.end_update()
 
-help_menu.add_item('About', on_about)
+...
 ```
+
+Finally, the **Help** drop-down menu has a single selection item labeled **About**, which has been assigned the **F9** Function Key as it's custom keyboard shortcut.
+```
+def on_about():
+    print('Help_Menu - About')
+
+help_menu.add_item('About', on_about).set_custom_shortcut('<F9>', 'F9')
+
+root.mainloop()
+```
+
+<div class="page"/>
+
+The **MenuButton** ...
+
+The **ContextMenu** ...
 
 <div class="page"/>
 
@@ -314,7 +394,7 @@ Construct and initialize the MenuItem.
 
 * **copy( ) -> MenuItem :** Create and return a deep copy of the MenuItem.
 
-* **set_custom_shortcut( *sequence*, *accelerator* ) :** Set a custom, user-defined shortcut for the MenuItem.
+* **set_custom_shortcut( *sequence*, *accelerator* ) :** Set a custom, user-defined shortcut for the MenuItem. The user should refer to the Tkinter documentation for information on keyboard events.
     * ***sequence* : str -** The custom event sequence string ( e.g. '\<Control-Shift-A\>' ).
     * ***accelerator* : str -** The custom accelerator description ( e.g. 'Ctrl+Shift+A' ).
 
@@ -363,8 +443,6 @@ Construct and initialize the MenuButton.
 * **text : str -** The text label string for the MenuButton. ( read / write )
 * **menu : Menu -** The MenuButton's drop down menu. ( readonly)
 
-<div class="page"/>
-
 ## ContextMenu
 
 **A pop-up context menu.**
@@ -373,8 +451,15 @@ Construct and initialize the MenuButton.
 
 Construct and initialize a ContextMenu.
 
+### Properties
 
-### Additional Methods
+The ContextMenu class is derived from the Menu class and inherits all the properties of that class.
+
+### Methods
+
+The ContextMenu class is derived from the Menu class and inherits all the methods of that class.
+
+### Additional/Overridden Methods
 
 * **copy( ) -> ContextMenu :** Create and return a deep copy of the ContextMenu.
 
@@ -383,4 +468,4 @@ Construct and initialize a ContextMenu.
 
 <div class="page"/>
 
-# Usage Examples
+# Usage Example
