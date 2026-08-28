@@ -94,7 +94,7 @@ file_menu.add_item('E&xit', on_exit).shortcut = 'w'
 root.mainloop()
 ```
 
-The Windows and Linux platforms support the **Alt+Key** technique for navigating the top menu bar and it's entries. The active key value for each entry appears as an underlined character in that entry's label. By default, the first character in the entry's label is the active key value. In this example, the top menu bar displays a **<u>F</u>ile** label. When the **&** symbol appears in the label string, the next character in the label will be designated as the active key value for that entry. The **&** symbol is not part of the displayed label. In this example, the **'E&xit'** string denotes that the **x** character is the active key value for this entry, and the label is displayed as **E<u>x</u>it** on the screen.
+The Windows and Linux platforms support the **Alt+Key** technique for navigating the top menu bar and its entries. The active key value for each entry appears as an underlined character in that entry's label. By default, the first character in the entry's label is the active key value. In this example, the top menu bar displays a **<u>F</u>ile** label. When the **&** symbol appears in the label string, the next character in the label will be designated as the active key value for that entry. The **&** symbol is not part of the displayed label. In this example, the **'E&xit'** string denotes that the **x** character is the active key value for this entry, and the label is displayed as **E<u>x</u>it** on the screen.
 
 The **shortcut** property allows a selection item to have a **Control+Key ( Command+key )** keyboard shortcut assigned to it. This is consistent with commonly used keyboard shortcuts such as the **Ctrl+C ( <font size="2">&#x2318;</font>C )** shortcut for a **Copy,** or the **Ctrl+V ( <font size="2">&#x2318;</font>V )** shortcut for a **Paste.** In this example, assigning the **'w'** character to the **shortcut** property creates a keyboard shortcut of **Ctrl+W ( <font size="2">&#x2318;</font>W )** for the **Exit** selection item. The shortcut's name is displayed next to the label on the screen. The **MenuItem** class also has a **set_custom_shortcut( )** method which can be used to assign other kinds of keyboard shortcuts, such as using a Function Key as a shortcut. The reader should refer to the Tkinter documentation for information on keyboard events.
 
@@ -130,7 +130,7 @@ file_menu.add_item('E&xit', on_exit, exit_icon).shortcut = 'w'
 root.mainloop()
 ```
 
-An application's top menu bar typically contains several drop-down menu entries. In this next example, four entries **( File, Edit, View,** and **Help )** are added to the top menu bar. The **begin_update( )** method should be called prior to adding multiple entries to the **MainMenu** class. Calling this method causes all the additions to be placed into a queue, and it will prevent multiple screen updates from occurring during this process. When all the entries have been added, the **end_update( )** method is then called to process all the queued entries and to allow those entries to be displayed on the screen. Use of the **begin_update( ) ... end_update( )** pair is recommended on all platforms, and it is required on the macOS platform to ensure the correct behavior of the top menu bar.
+An application's top menu bar typically contains several drop-down menu entries. In this next example, four entries **( File, Edit, View,** and **Help )** are added to the top menu bar. The **begin_update( )** method should be called prior to adding multiple entries to the **MainMenu** class. Calling this method causes all the added entries to be placed into a queue, and it prevents multiple screen updates from occurring during this process. When all the entries have been added, the **end_update( )** method is called to process all the queued entries and to allow those entries to be displayed on the screen. Use of the **begin_update( ) ... end_update( )** pair is recommended on all platforms, and it is required on the macOS platform to ensure the correct behavior of the top menu bar.
 
 ```
 # Create and Populate the Top Menu Bar
@@ -203,8 +203,6 @@ from menus import MainMenu, EntryType, ConfigInfo
 Next, each selection item in the **Zoom** menu must be configured as a 'Radiobutton' entry. The **EntryType** and the **ConfigInfo** dataclasses are used to perform that task. The **EntryType** defines the behavior of the entry, and it can be one of three options **: STANDARD**( default )**, CHECKBUTTON,** or **RADIOBUTTON**. Just like Radiobuttons, the Tkinter **IntVar** class is used to provide communication between the entries, and each entry must have a unique id value. The **ConfigInfo** dataclass is used to provide the configuration information when creating each of the three selection items. In this next code section, the three different zoom options are created and added to the **Zoom** menu entry in the **View** drop-down menu **:**
 
 ```
-...
-
 zoom_variable = IntVar(value=100)
 
 def on_zoom():
@@ -221,21 +219,63 @@ zoom_menu.end_update()
 ...
 ```
 
-Finally, the **Help** drop-down menu has a single selection item labeled **About**, which has been assigned the **F9** Function Key as it's custom keyboard shortcut.
+Finally, the **Help** drop-down menu has a single selection item labeled **About**, which has been assigned **'Ctrl+Shift+A'** as its custom keyboard shortcut.
 ```
 def on_about():
     print('Help_Menu - About')
 
-help_menu.add_item('About', on_about).set_custom_shortcut('<F9>', 'F9')
+about = help_menu.add_item('About', on_about)
+about.set_custom_shortcut('<Control-Shift-A>', 'Ctrl+Shift+A')
 
 root.mainloop()
 ```
 
 <div class="page"/>
 
-The **MenuButton** ...
+The **MenuButton** is essentially a single entry menu bar that can be positioned anywhere in the application window. The **MenuButton**'s text and optional image are always visible on the screen. Its drop-down menu, the **menu** property, is displayed when the **MenuButton** is clicked. This is an example using the **MenuButton :**
 
-The **ContextMenu** ...
+```
+from tkinter import Tk
+from menus import MenuButton
+
+root = Tk()
+selections = MenuButton(root, 'Selections', 20)
+selections.grid(padx=40, pady=40)
+selections.menu.begin_update()
+for i in range(1, 5):
+    def on_select(index=i):
+        print(f'Selection Number {index}')
+    selections.menu.add_item(f'Selection #{i}', on_select)
+selections.menu.end_update()
+root.mainloop()
+```
+
+The **ContextMenu** is a pop-up menu that can be displayed at a specified screen location. A **ContextMenu** is not visible until it is invoked by some action, usually a right-button mouse click. In this next example, a **ContextMenu** is created and then associated with a **Label** widget **:**
+
+```
+from tkinter import Tk, Label
+from menus import ContextMenu
+
+root = Tk()
+
+def on_context_event():
+    print('Context Menu Event')
+
+context_menu = ContextMenu()
+context_menu.add_item('Copy', on_context_event)
+context_menu.add_item('Save As ...', on_context_event)
+context_menu.add_item('Delete Text', on_context_event)
+
+label = Label(root, text=' ContextMenu Example  ', relief='groove')
+label.grid(padx=40, pady=40)
+
+def on_right_button(e):  # Display the ContextMenu at the mouse position
+    position = (label.winfo_rootx() + e.x, label.winfo_rooty() + e.y)
+    context_menu.display(position)
+
+label.bind('<Button-3>', on_right_button)  # use '<Button-2>' on macOS
+root.mainloop()
+```
 
 <div class="page"/>
 
@@ -383,7 +423,7 @@ Construct and initialize the MenuItem.
 
 ### Properties
 
-* **checked : bool -** A value indicating whether a MenuItem is checked. ( readonly )
+* **checked : bool -** A value indicating whether a MenuItem is checked. ( read / write )
 * **enabled : bool -** A value indicating whether the MenuItem is enabled. ( read / write )
 * **image : PhotoImage | None -** The optional image associated with the MenuItem. ( read / write )
 * **shortcut : str -** The MenuItem's shortcut key character value. ( read / write )
@@ -441,7 +481,7 @@ Construct and initialize the MenuButton.
 * **enabled : bool -** A value indicating whether the MenuButton is enabled. ( read / write )
 * **image : PhotoImage | None -** The image associated with the MenuButton. ( read / write )
 * **text : str -** The text label string for the MenuButton. ( read / write )
-* **menu : Menu -** The MenuButton's drop down menu. ( readonly)
+* **menu : Menu -** The MenuButton's drop-down menu. ( readonly)
 
 ## ContextMenu
 
@@ -469,3 +509,183 @@ The ContextMenu class is derived from the Menu class and inherits all the method
 <div class="page"/>
 
 # Usage Example
+
+This example demonstrates a structured approach for creating the top menu bar of an application's main window class. Each of the **File, Edit,** and **View** drop-down menus is constructed by means of its own, individual class method and then added to the menu bar. This example also demonstrates an operating system independent implementation of the **Ctrl+Q** keyboard shortcut for exiting the application.
+
+The **ImageList** class, from the [imagelist](https://pypi.org/project/imagelist/) package, is used to provide PhotoImages from the image files located in the specified **'image_folder'** ( open.png, save.png, exit.png, cut.svg, copy.svg, paste.svg, and search.svg ).
+
+```
+from tkinter import Tk, Frame, IntVar, filedialog, messagebox
+import platform
+from imagelist import ImageList
+from menus import MainMenu, Menu, MenuItem, EntryType, ConfigInfo
+
+
+class DemoForm(Frame):
+    """The demonstration window."""
+
+    def __init__(self, master: Tk, width: int, height: int):
+        """Construct and initialize the demonstration window."""
+        super().__init__(master, width=width, height=height)
+        self.grid()
+        self._master = master
+        master.title('Demo Window')
+        image_list = ImageList('image_folder', auto_load=True)
+
+        # Create and Populate the Top Menu Bar
+        menu_bar = MainMenu(self)
+        menu_bar.begin_update()
+        menu_bar.add(self._file_menu(image_list))
+        menu_bar.add(self._edit_menu(image_list))
+        menu_bar.add(self._view_menu())
+        help_menu = menu_bar.add_menu('Help')
+        about = help_menu.add_item('About', self._on_about)
+        about.set_custom_shortcut('<F9>', 'F9')
+        menu_bar.end_update()
+
+    def _on_about(self):
+        """Handle the 'About' selection."""
+        self._console_print('Help_Menu - About')
+```
+
+<div class="page"/>
+
+This section of the application involves the creation of the **File** drop-down menu. The first group of statements in this section ensure that all the application window's exit/quit options are routed through the **self._on_exit** event handler. The first statement intercepts the close button in the window title bar. The second and third statements intercept the **<font size="2">&#x2318;</font>Q** keyboard shortcut on macOS systems. The final two statements construct the **Exit** selection item and assigns it the **Ctrl+Q** keyboard shortcut, regardless of the target platform ( this appears as a **^Q** on a macOS platform ).
+
+The **Save** selection item and its keyboard shortcut are initially disabled. They will be enabled when the user chooses the **Open** selection item and selects an existing file in the dialog box.
+
+```
+    def _file_menu(self, images) -> Menu:
+        """Construct the 'File' drop-down menu."""
+        self._master.protocol('WM_DELETE_WINDOW', self._on_exit)
+        if platform.system() == 'Darwin':  # macOS system
+            self._master.createcommand('tk::mac::Quit', self._on_exit)
+        exit_item = MenuItem('E&xit', self._on_exit, images['exit'])
+        exit_item.set_custom_shortcut('<Control-q>', 'Ctrl+Q')
+
+        menu = Menu('File')
+        menu.begin_update()
+        menu.add_item('Open', self._on_open, images['open']).shortcut = 'o'
+        self._save_item = menu.add_item('Save', self._on_save, images['save'])
+        self._save_item.shortcut = 's'
+        self._save_item.enabled = False
+        menu.add_separator()
+        menu.add(exit_item)
+        menu.end_update()
+        return menu
+
+    def _on_open(self):
+        """Handle the 'Open' selection."""
+        filename = filedialog.askopenfilename(title='Open a File')
+        if filename:
+            self._save_item.enabled = True
+            self._console_print(filename)
+
+    def _on_save(self):
+        """Handle the 'Save' selection."""
+        filename = filedialog.asksaveasfilename(title='Save a File')
+        if filename:
+            self._console_print(filename)
+
+    def _on_exit(self):
+        """Handle the 'Exit' selection."""
+        if messagebox.askyesno('Exit', 'Do you wish to Exit the program?'):
+            self._master.destroy()
+```
+
+<div class="page"/>
+
+This next section of the application creates the **Edit** drop-down menu. Here, The **Paste** selection item and its keyboard shortcut are initially disabled. They will be enabled when the user chooses either the **Cut** or **Copy** selection item. A **Search** menu entry and its **Find** and **Replace** selection items have also been added to this drop-down menu.
+
+```
+    def _edit_menu(self, images) -> Menu:
+        """Construct the 'Edit' drop-down menu."""
+        self._paste_item = MenuItem('Paste', self._on_paste, images['paste'])
+        self._paste_item.shortcut = 'v'
+        self._paste_item.enabled = False
+
+        menu = Menu('Edit')
+        menu.begin_update()
+        menu.add_item('Cu&t', self._on_cut, images['cut']).shortcut = 'x'
+        menu.add_item('Copy', self._on_copy, images['copy']).shortcut = 'c'
+        menu.add(self._paste_item)
+        menu.add_separator()
+        search_menu = menu.add_menu('Search', images['search'])
+        search_menu.begin_update()
+        search_menu.add_item('Find', self._on_find).shortcut = 'f'
+        search_menu.add_item('Replace', self._on_replace).shortcut = 'r'
+        search_menu.end_update()
+        menu.end_update()
+        return menu
+
+    def _on_cut(self):
+        """Handle the 'Cut' selection."""
+        self._paste_item.enabled = True
+        self._console_print('Edit_Menu - Cut')
+
+    def _on_copy(self):
+        """Handle the 'Copy' selection."""
+        self._paste_item.enabled = True
+        self._console_print('Edit_Menu - Copy')
+
+    def _on_paste(self):
+        """Handle the 'Paste' selection."""
+        self._console_print('Edit_Menu - Paste')
+
+    def _on_find(self):
+        """Handle the 'Find' selection."""
+        self._console_print('Edit_Menu - Search_Menu - Find')
+
+    def _on_replace(self):
+        """Handle the 'Replace' selection."""
+        self._console_print('Edit_Menu - Search_Menu - Replace')
+```
+
+<div class="page"/>
+
+Finally, the **View** drop-down menu is created and populated with two different types of selection entries. The **Full Screen** selection item is configured as 'Checkbox' entry. Using its keyboard shortcut toggles the status **( True / False )** of the **checked** property. Once again, The **Zoom** menu entry has several 'RadioButton' selection entries.
+
+The program begins execution at the **if \_\_name\_\_ == '\_\_main\_\_' :** statement.
+
+```
+    def _view_menu(self) -> Menu:
+        """Construct the 'View' drop-down menu."""
+        menu = Menu('View')
+        menu.begin_update()
+        self._full_screen = menu.add_item(
+            'Full Screen',
+            self._on_full_screen,
+            config=ConfigInfo(EntryType.CHECKBUTTON),
+        )
+        self._full_screen.shortcut = 't'  # Toggle the screen mode
+        menu.add_separator()
+
+        self._zoom_variable = IntVar(value=1)
+        config = ConfigInfo(EntryType.RADIOBUTTON, self._zoom_variable)
+        zoom_menu = menu.add_menu('Zoom')
+        zoom_menu.begin_update()
+        for value in (1, 2, 4, 8):
+            config.value = value
+            zoom_menu.add_item(f'&{value}00%', self._on_zoom, config=config)
+        zoom_menu.end_update()
+        menu.end_update()
+        return menu
+
+    def _on_full_screen(self):
+        """Handle the 'Full Screen' toggle selection."""
+        self._master.attributes('-fullscreen', self._full_screen.checked)
+
+    def _on_zoom(self):
+        """Handle the 'Zoom' selections."""
+        self._console_print(f'View_Menu - Zoom {self._zoom_variable.get()}00%')
+
+    @staticmethod
+    def _console_print(message):
+        """Print the message to the console."""
+        print(f'*** {message} was Selected ***')
+
+
+if __name__ == '__main__':
+    main_form = DemoForm(Tk(), 400, 300)
+    main_form.mainloop()
+```
